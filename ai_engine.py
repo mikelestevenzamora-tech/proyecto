@@ -5,22 +5,17 @@ import joblib
 import os
 import requests
 
-# ===============================
-# 1️⃣ Cargar datos y modelos
-# ===============================
+
 df = pd.read_csv("final.csv")
 df['Potencial'] = (df['SCA'] + df['Gls'] + df['Ast']) / df['Age']
 df['Eficiencia'] = df['Gls'] / (df['SoT'] + 1)
 df['DefImpact'] = df['Tkl'] + df['Int']
 
-# Agregar métricas para partidos
 df['Score_Ataque'] = df['xG']*2 + df['Gls'] + df['Ast'] + df['KP'] + df['PPA'] + df['CrsPA']
 df['Score_Defensa'] = df['Tkl'] + df['Int'] + df['Blocks'] + df['Clr'] + df['Def 3rd_stats_possession']
 df['Score_Posesion'] = df[['Live_stats_possession','Touches','PrgDist']].mean(axis=1)
 
-# -------------------------------
-# Cargar modelos y scalers
-# -------------------------------
+
 rf_valor_jugadores = joblib.load("rf_valor_jugadores.pkl")
 scaler_valor_jugadores = joblib.load("scaler_valor_jugadores.pkl")
 
@@ -42,9 +37,7 @@ features_valor = [
 
 features_gk_paradas = ["MP","Min","Rec","GCA","Tkl+Int","FatigueIndex"]
 
-# ===============================
-# 2️⃣ Función predecir jugador
-# ===============================
+
 def predecir_jugador(nombre):
     row = df[df['Player'].str.lower() == nombre.lower()]
     if row.empty:
@@ -84,9 +77,7 @@ def predecir_jugador(nombre):
             'FatigueIndex': round(row['FatigueIndex'],2)
         }
 
-# ===============================
-# 3️⃣ Función predecir partido
-# ===============================
+
 def predecir_partido(equipoA, equipoB):
     dfA = df[df['Squad'].str.lower() == equipoA.lower()]
     dfB = df[df['Squad'].str.lower() == equipoB.lower()]
@@ -119,9 +110,7 @@ def predecir_partido(equipoA, equipoB):
         'Analisis': analisis
     }
 
-# ===============================
-# 4️⃣ UI Flet con diseño premium
-# ===============================
+
 def main(page: ft.Page):
     # 🎨 Colores de la web
     colors = {
@@ -149,7 +138,7 @@ def main(page: ft.Page):
     
     input_box = ft.TextField(expand=True, label="Escribe tu consulta", text_style=ft.TextStyle(color=colors["text_white"], size=16), bgcolor=colors["pitch_dark"], border_radius=8)
     
-    # 💬 Burbujas de chat
+    # Burbujas de chat
     def bubble(role, text):
         is_user = role == "user"
         bubble_color = colors["copperwood"] if is_user else colors["pitch_dark"]
